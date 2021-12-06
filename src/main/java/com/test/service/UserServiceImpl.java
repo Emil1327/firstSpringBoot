@@ -82,7 +82,7 @@ public class UserServiceImpl implements UserService {
             try {
                 throw new NotFoundException();
             } catch (NotFoundException e) {
-                System.out.println("Mi ban");
+                System.out.println("Barev");
             }
         }
         return optionalUser.get();

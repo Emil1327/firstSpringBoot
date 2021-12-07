@@ -34,6 +34,7 @@ public class UserController {
     }
 
     @RolesAllowed(value = "ROLE_ADMIN")
+
     @GetMapping("/GetByEmail")
     User get_by_email(@RequestParam("email") String email) throws NotFoundException {
         return userService.getByEmail(email);
@@ -65,7 +66,18 @@ public class UserController {
     }
 
     @GetMapping("/sendEmail")
-    public void sendEmail(@RequestParam("email") String email){
+    public void send_email(@RequestParam("email") String email){
         userService.sendEmail(email);
+    }
+
+    @GetMapping("/resetPass")
+    public  void reset_password_token (@RequestParam("email") String email) throws NotFoundException {
+        userService.resetPassword(email);
+    }
+
+
+    @PostMapping("/newPassword")
+    public void sava_new_password(@RequestParam("token") long token ,@RequestParam("password") String password) throws NotFoundException {
+        userService.saveNewPassword(token,password);
     }
 }

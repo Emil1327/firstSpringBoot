@@ -2,6 +2,7 @@ package com.test.model;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
 import java.util.List;
 import java.util.Objects;
 
@@ -11,7 +12,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id ;
+    private int id;
 
     @Column(name = "name", nullable = false)
     private String name;
@@ -27,8 +28,11 @@ public class User {
     @Column(name = "gender")
     private Gender gender;
 
+    @Column(name = "token")
+    private long token;
+
     @ManyToOne
-    @JoinColumn(name = "address_id" ,nullable = false)
+    @JoinColumn(name = "address_id", nullable = false)
     private Address address;
 
     @OneToOne(fetch = FetchType.EAGER)
@@ -42,16 +46,25 @@ public class User {
     @ManyToMany(fetch = FetchType.EAGER)
     private List<Authority> authority;
 
-    public User(int id, String name, String email, String password, Gender gender, Address address, Telephone telephone, Status status, List<Authority> authority) {
+    public User(int id, String name, String email, String password, Gender gender, long token, Address address, Telephone telephone, Status status, List<Authority> authority) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.password = password;
         this.gender = gender;
+        this.token = token;
         this.address = address;
         this.telephone = telephone;
         this.status = status;
         this.authority = authority;
+    }
+
+    public long getToken() {
+        return token;
+    }
+
+    public void setToken(long token) {
+        this.token = token;
     }
 
     public List<Authority> getAuthor() {
@@ -62,8 +75,8 @@ public class User {
         this.authority = author;
     }
 
-    private void UserStatus(User user){
-        user.status=Status.UNVERIFIED;
+    private void UserStatus(User user) {
+        user.status = Status.UNVERIFIED;
     }
 
     public Address getAddress() {
@@ -107,8 +120,8 @@ public class User {
         this.email = email;
         this.password = password;
         this.gender = gender;
-        this.address=address;
-        this.telephone=telephone;
+        this.address = address;
+        this.telephone = telephone;
     }
 
     public User() {

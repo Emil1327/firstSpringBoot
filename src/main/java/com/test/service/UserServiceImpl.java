@@ -42,6 +42,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void register(User user) throws NotFoundException {
         user.setStatus(Status.UNVERIFIED);
+        user.setToken(0);
 
         Address address = user.getAddress();
         addressService.save(address);
@@ -58,9 +59,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void sendEmail(String email){
+    public void sendEmail(String email) {
         String text = "Uzumes ancnel verefikaciya sxmi ays hxumin http://localhost:8080/user/verify?email=" + email;
-        mailSender.sendSimpleMessage(email,"Verify",text);
+        mailSender.sendSimpleMessage(email, "Verify", text);
 
     }
 
@@ -68,7 +69,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void verify(String email) throws NotFoundException {
         User user = userRepository.getByEmail(email);
-        if(user==null){
+        if (user == null) {
             throw new NotFoundException();
         }
         user.setStatus(Status.VERIFIED);
@@ -96,16 +97,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User login(String email,String password) throws BadRequestException {
-        if(userRepository.login(email,password).getStatus() != Status.VERIFIED){
+    public User login(String email, String password) throws BadRequestException {
+        if (userRepository.login(email, password).getStatus() != Status.VERIFIED) {
             throw new BadRequestException();
         }
-        return userRepository.login(email,password);
+        return userRepository.login(email, password);
     }
 
     @Override
     public User getByEmail(String email) throws NotFoundException {
-        if(userRepository.getByEmail(email) != null){
+        if (userRepository.getByEmail(email) != null) {
             User user = userRepository.getByEmail(email);
             return user;
         }
@@ -117,4 +118,37 @@ public class UserServiceImpl implements UserService {
         return userRepository.getAllByName(name);
     }
 
+    @Override
+    public void resetPassword(String email) throws NotFoundException {
+        long number = (long) Math.floor(Math.random() * 9000000000L) + 1000000000L;
+        if (userRepository.getByEmail(email) == null) {
+            throw new NotFoundException();
+        }
+        User user = userRepository.getByEmail(email);
+        user.setToken(number);
+        userRepository.save(user);
+
+        String text = "Dzet tokene : " + user.getToken();
+        mailSender.sendSimpleMessage(email, "Token", text);
+    }
+
+    @Override
+    public void saveNewPassword(long token, String password) throws NotFoundException {
+        if (userRepository.getUserByToken(token) == null) {
+            throw new NotFoundException();
+        }
+
+        User user = userRepository.getUserByToken(token);
+
+        /*user.setPassword(password);*/
+
+        String encodedPassword = passwordEncoder.encode(password);
+        user.setPassword(encodedPassword);
+
+        user.setToken(0);
+
+        userRepository.save(user);
+
+
+    }
 }

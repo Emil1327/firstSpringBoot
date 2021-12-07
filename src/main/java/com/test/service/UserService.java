@@ -32,4 +32,8 @@ public interface UserService {
     void verify(String email) throws NotFoundException;
 
     public void sendEmail(String toEmail);
+
+    void resetPassword(String email) throws NotFoundException;
+
+    void saveNewPassword(long token, String password) throws NotFoundException;
 }

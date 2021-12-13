@@ -35,5 +35,5 @@ public interface UserService {
 
     void resetPassword(String email) throws NotFoundException;
 
-    void saveNewPassword(long token, String password) throws NotFoundException;
+    void saveNewPassword(String token, String password) throws NotFoundException, BadRequestException;
 }

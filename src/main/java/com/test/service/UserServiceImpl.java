@@ -2,16 +2,19 @@ package com.test.service;
 
 import com.test.exception.BadRequestException;
 import com.test.exception.NotFoundException;
-import com.test.model.Address;
-import com.test.model.Status;
-import com.test.model.Telephone;
-import com.test.model.User;
+import com.test.model.*;
 import com.test.repository.UserRepository;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import sun.util.resources.LocaleData;
 
+import java.security.Principal;
+import java.time.LocalDate;
+import java.time.Month;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,6 +36,8 @@ public class UserServiceImpl implements UserService {
         return userRepository.findAll();
     }
 
+
+
     @Override
     public void removeById(int id) {
         userRepository.deleteById(id);
@@ -42,13 +47,15 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void register(User user) throws NotFoundException {
         user.setStatus(Status.UNVERIFIED);
-        user.setToken(0);
+        user.setToken("123141");
 
         Address address = user.getAddress();
         addressService.save(address);
 
         Telephone telephone = user.getTelephone();
         telephoneService.save(telephone);
+
+        user.getData();
 
         String encodedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPassword);
@@ -120,12 +127,16 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void resetPassword(String email) throws NotFoundException {
-        long number = (long) Math.floor(Math.random() * 9000000000L) + 1000000000L;
+        String randomString = RandomStringUtils.random(10, true, false);
+
         if (userRepository.getByEmail(email) == null) {
             throw new NotFoundException();
         }
         User user = userRepository.getByEmail(email);
-        user.setToken(number);
+        user.setToken(randomString);
+
+        long milliseconds = System.currentTimeMillis();
+        user.setMilliseconds(milliseconds);
         userRepository.save(user);
 
         String text = "Dzet tokene : " + user.getToken();
@@ -133,20 +144,29 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void saveNewPassword(long token, String password) throws NotFoundException {
+    public void saveNewPassword(String token, String password) throws NotFoundException, BadRequestException {
         if (userRepository.getUserByToken(token) == null) {
             throw new NotFoundException();
         }
 
         User user = userRepository.getUserByToken(token);
 
-        /*user.setPassword(password);*/
+        int a = 120000;
+        long b = user.getMilliseconds();
+        long milliseconds = System.currentTimeMillis();
+        long c = milliseconds - b;
+
+        if (a <= c) {
+            throw new BadRequestException();
+        }
 
         String encodedPassword = passwordEncoder.encode(password);
         user.setPassword(encodedPassword);
 
-        user.setToken(0);
+        user.setToken(null);
+        user.setMilliseconds(0);
 
+        user.setToken("0");
         userRepository.save(user);
 
 

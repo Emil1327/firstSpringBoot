@@ -1,8 +1,11 @@
 package com.test.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Null;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 
@@ -17,6 +20,11 @@ public class User {
     @Column(name = "name", nullable = false)
     private String name;
 
+    @Column(name = "data")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate data;
+
     @NotNull
     @Column(name = "email", unique = true, nullable = false)
     private String email;
@@ -28,8 +36,11 @@ public class User {
     @Column(name = "gender")
     private Gender gender;
 
-    @Column(name = "token")
-    private long token;
+    @Column(name = "reset_password_token")
+    private String token;
+
+    @Column(name = "reset_password_token_create_data")
+    private long milliseconds;
 
     @ManyToOne
     @JoinColumn(name = "address_id", nullable = false)
@@ -39,6 +50,7 @@ public class User {
     @JoinColumn()
     private Telephone telephone;
 
+
     @NotNull
     @Column(name = "status")
     private Status status;
@@ -46,24 +58,42 @@ public class User {
     @ManyToMany(fetch = FetchType.EAGER)
     private List<Authority> authority;
 
-    public User(int id, String name, String email, String password, Gender gender, long token, Address address, Telephone telephone, Status status, List<Authority> authority) {
+    public User(int id, String name, LocalDate data, String email, String password, Gender gender, String token, long milliseconds, Address address, Telephone telephone, Status status, List<Authority> authority) {
         this.id = id;
         this.name = name;
+        this.data = data;
         this.email = email;
         this.password = password;
         this.gender = gender;
         this.token = token;
+        this.milliseconds = milliseconds;
         this.address = address;
         this.telephone = telephone;
         this.status = status;
         this.authority = authority;
     }
 
-    public long getToken() {
+    public LocalDate getData() {
+        return data;
+    }
+
+    public void setData(LocalDate data) {
+        this.data = data;
+    }
+
+    public long getMilliseconds() {
+        return milliseconds;
+    }
+
+    public void setMilliseconds(long milliseconds) {
+        this.milliseconds = milliseconds;
+    }
+
+    public String getToken() {
         return token;
     }
 
-    public void setToken(long token) {
+    public void setToken(String token) {
         this.token = token;
     }
 

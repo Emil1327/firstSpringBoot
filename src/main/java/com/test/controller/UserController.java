@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 import javax.annotation.security.RolesAllowed;
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -22,8 +23,8 @@ public class UserController {
     @Autowired
     private AddressService addressService;
 
-    @GetMapping
-    List<User> get_all() {
+    @GetMapping("/GetAll")
+    List<User> get_all(Principal principal) throws NotFoundException {
         return userService.getAll();
     }
 
@@ -34,7 +35,6 @@ public class UserController {
     }
 
     @RolesAllowed(value = "ROLE_ADMIN")
-
     @GetMapping("/GetByEmail")
     User get_by_email(@RequestParam("email") String email) throws NotFoundException {
         return userService.getByEmail(email);
@@ -75,9 +75,8 @@ public class UserController {
         userService.resetPassword(email);
     }
 
-
     @PostMapping("/newPassword")
-    public void sava_new_password(@RequestParam("token") long token ,@RequestParam("password") String password) throws NotFoundException {
+    public void sava_new_password(@RequestParam("token") String token ,@RequestParam("password") String password) throws NotFoundException, BadRequestException {
         userService.saveNewPassword(token,password);
     }
 }
